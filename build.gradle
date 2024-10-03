@@ -1,9 +1,10 @@
 plugins {
     id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
+    id "com.modrinth.minotaur" version "2.+"
 }
 
-version = project.mod_version
+version = "${project.mod_version}+${project.minecraft_version}"
 group = project.maven_group
 
 base {
@@ -74,3 +75,25 @@ publishing {
         // retrieving dependencies.
     }
 }
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = project.archives_base_name
+    versionName = "Unkindled " + project.mod_version
+    versionNumber = project.version.toString()
+    versionType = "release"
+    uploadFile = remapJar
+    gameVersions = project.version_range.split(",").collect { it.trim() }
+    loaders = ["fabric"]
+    dependencies {
+        required.project "fabric-api"
+    }
+    syncBodyFrom = rootProject.file("README.md").text
+    def versionAsNumber = project.mod_version.replaceAll("\\.", "")
+    changelog = "Check the changelog on [GitHub](https://github.com/Reimaden-Modding/unkindled/blob/HEAD/CHANGELOG.md#" + versionAsNumber + ")"
+    additionalFiles = [
+            remapSourcesJar
+    ]
+}
+
+tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
