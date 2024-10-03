@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "net.reimaden.unkindled.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractFurnaceBlockEntityAccessor",
+    "AbstractFurnaceBlockEntityMixin",
+    "CampfireBlockMixin",
+    "FlintAndSteelDispenserBehaviorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
