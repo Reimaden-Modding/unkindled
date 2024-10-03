@@ -1,3 +1,7 @@
+<div style="text-align: center;">
+    <img alt="fabric-api" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/requires/fabric-api_vector.svg">
+</div>
+
 Unkindled makes furnaces no longer smelt items automatically.
 Instead, players need to use a flint and steel (any tool in `c:tools/igniter`)
 or a fire charge to ignite the furnace (while sneaking).
