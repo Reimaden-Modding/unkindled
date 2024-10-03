@@ -29,3 +29,8 @@ Any furnace or campfire block added to this tag, that inherits from the vanilla 
 `unkindled:self_igniting_fuel`  
 Items in this tag bypass the need to manually ignite a furnace.
 Includes the bucket of lava and blaze rod by default.
+
+## Sidedness
+
+While this is technically not required on the client, slight visual errors will occur.  
+If possible, Unkindled should be installed on both server and client.
