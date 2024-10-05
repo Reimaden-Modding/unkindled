@@ -1,3 +1,4 @@
+<!--suppress HtmlDeprecatedAttribute -->
 <p align="center">
     <img alt="fabric-api" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/requires/fabric-api_vector.svg">
 </p>
@@ -17,21 +18,21 @@ Unkindled adds extra behavior to the dispenser, allowing it to ignite furnaces u
 
 ## Configuration
 
-The mod is controlled using tags. One for items and one for blocks.
+The mod is controlled using tags. One for items and one for blocks.  
 Replace or add to them according to your needs.
 
 #### Needs Igniting (Block)
 
 `unkindled:needs_igniting`  
-Blocks in this tag require to be manually ignited using a flint and steel or a fire charge.
-Includes all vanilla furnaces and campfires by default.
+Blocks in this tag require to be manually ignited using a flint and steel or a fire charge.  
+Includes all vanilla furnaces and campfires in the `minecraft:campfires` tag by default.
 
 Any furnace or campfire block added to this tag, that inherits from the vanilla furnace or campfire respectively, should work out of the box.
 
 #### Self-Igniting Fuel (Item)
 
 `unkindled:self_igniting_fuel`  
-Items in this tag bypass the need to manually ignite a furnace.
+Items in this tag bypass the need to manually ignite a furnace.  
 Includes the bucket of lava and blaze rod by default.
 
 ## Sidedness
