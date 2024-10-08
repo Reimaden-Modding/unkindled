@@ -1,6 +1,6 @@
 ## 1.2.0
 
-- Switched bucket of lava with the conventional tag in the `unkindled:self_igniting_fuel` item tag
+- Switched bucket of lava and blaze rod with appropriate conventional tags in the `unkindled:self_igniting_fuel` item tag
 
 ## 1.1.0
 
