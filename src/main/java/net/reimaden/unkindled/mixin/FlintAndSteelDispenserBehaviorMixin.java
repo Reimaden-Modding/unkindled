@@ -41,5 +41,4 @@ public abstract class FlintAndSteelDispenserBehaviorMixin {
             ((Igniter) furnace).unkindled$setIgnited(true);
         }
     }
-
 }

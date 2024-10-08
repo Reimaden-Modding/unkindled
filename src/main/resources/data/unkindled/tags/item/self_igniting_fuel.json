@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "minecraft:lava_bucket",
+    "#c:buckets/lava",
     "minecraft:blaze_rod"
   ]
 }
