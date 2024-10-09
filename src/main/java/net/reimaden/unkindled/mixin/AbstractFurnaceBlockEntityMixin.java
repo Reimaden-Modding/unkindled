@@ -2,15 +2,14 @@ package net.reimaden.unkindled.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.block.AbstractFurnaceBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.reimaden.unkindled.Unkindled;
 import net.reimaden.unkindled.util.Igniter;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,56 +35,56 @@ public abstract class AbstractFurnaceBlockEntityMixin implements Igniter {
 
     @SuppressWarnings("UnresolvedMixinReference")
     @ModifyExpressionValue(
-            method = "tick",
+            method = "serverTick",
             at = @At(
                     value = "INVOKE:FIRST",
-                    target = "Lnet/minecraft/block/entity/AbstractFurnaceBlockEntity;canAcceptRecipeOutput(Lnet/minecraft/registry/DynamicRegistryManager;Lnet/minecraft/recipe/RecipeEntry;Lnet/minecraft/util/collection/DefaultedList;I)Z"
+                    target = "Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;canBurn(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/item/crafting/RecipeHolder;Lnet/minecraft/core/NonNullList;ILnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;)Z"
             )
     )
-    private static boolean unkindled$requiresIgniting(boolean original, World world, BlockPos pos, BlockState state,
+    private static boolean unkindled$requiresIgniting(boolean original, Level level, BlockPos pos, BlockState state,
                                                       AbstractFurnaceBlockEntity blockEntity, @Local(ordinal = 0) ItemStack stack) {
-        if (!state.isIn(Unkindled.NEEDS_IGNITING) || stack.isIn(Unkindled.SELF_IGNITING_FUEL)) {
+        if (!state.is(Unkindled.NEEDS_IGNITING) || stack.is(Unkindled.SELF_IGNITING_FUEL)) {
             return original;
         }
         return original && ((Igniter) blockEntity).unkindled$isIgnited();
     }
 
     @Inject(
-            method = "tick",
+            method = "serverTick",
             at = @At(
                     "TAIL"
             )
     )
-    private static void unkindled$setUnignited(World world, BlockPos pos, BlockState state,
+    private static void unkindled$setUnignited(Level level, BlockPos pos, BlockState state,
                                                AbstractFurnaceBlockEntity blockEntity, CallbackInfo ci) {
-        if (!state.get(AbstractFurnaceBlock.LIT)) {
-            if (((AbstractFurnaceBlockEntityAccessor) blockEntity).unkindled$cookTime() > 0) {
+        if (!state.getValue(AbstractFurnaceBlock.LIT)) {
+            if (((AbstractFurnaceBlockEntityAccessor) blockEntity).unkindled$cookingProgress() > 0) {
                 return;
             }
             ((Igniter) blockEntity).unkindled$setIgnited(false);
-        } else if (!((AbstractFurnaceBlockEntityAccessor) blockEntity).unkindled$isBurning()) {
-            state = state.with(AbstractFurnaceBlock.LIT, false);
-            world.setBlockState(pos, state, Block.NOTIFY_ALL);
+        } else if (!((AbstractFurnaceBlockEntityAccessor) blockEntity).unkindled$isLit()) {
+            state = state.setValue(AbstractFurnaceBlock.LIT, false);
+            level.setBlockAndUpdate(pos, state);
         }
     }
 
     @Inject(
-            method = "readNbt",
+            method = "loadAdditional",
             at = @At(
                     "TAIL"
             )
     )
-    private void unkindled$readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
-        this.unkindled$ignited = nbt.getBoolean("Ignited");
+    private void unkindled$readNbt(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+        this.unkindled$ignited = tag.getBoolean("Ignited");
     }
 
     @Inject(
-            method = "writeNbt",
+            method = "saveAdditional",
             at = @At(
                     "TAIL"
             )
     )
-    private void unkindled$writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
-        nbt.putBoolean("Ignited", this.unkindled$ignited);
+    private void unkindled$writeNbt(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+        tag.putBoolean("Ignited", this.unkindled$ignited);
     }
 }
