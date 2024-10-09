@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '1.0.20'
-    id "com.modrinth.minotaur" version "2.+"
+    id "me.modmuss50.mod-publish-plugin" version "0.7.4"
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -193,21 +193,30 @@ java {
     withSourcesJar()
 }
 
-modrinth {
-    token = System.getenv("MODRINTH_TOKEN")
-    projectId = project.mod_id
-    versionName = "Unkindled " + project.mod_version
-    versionNumber = project.version.toString()
-    versionType = "release"
-    uploadFile = jar
-    gameVersions = ["1.21", "1.21.1"]
-    loaders = ["neoforge"]
-    syncBodyFrom = rootProject.file("README.md").text
+publishMods {
     def versionAsNumber = project.mod_version.replaceAll("\\.", "")
     changelog = "Check the changelog on [GitHub](https://github.com/Reimaden-Modding/unkindled/blob/HEAD/CHANGELOG.md#" + versionAsNumber + ")"
-    additionalFiles = [
-            sourcesJar
-    ]
-}
+    type = STABLE
+    file = jar.archiveFile
+    modLoaders.add("neoforge")
+    version = project.version
+    displayName = "Unkindled " + project.mod_version
+    additionalFiles.from(sourcesJar.archiveFile)
 
-tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        projectId = "ozHCnpcZ"
+        minecraftVersions.add("1.21")
+        minecraftVersions.add("1.21.1")
+        projectDescription = providers.fileContents(layout.projectDirectory.file("README.md")).asText
+    }
+
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        projectId = "1118464"
+        minecraftVersions.add("1.21")
+        minecraftVersions.add("1.21.1")
+        clientRequired = false
+        serverRequired = true
+    }
+}
