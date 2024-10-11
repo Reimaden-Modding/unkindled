@@ -1,11 +1,11 @@
 package net.reimaden.unkindled.util;
 
-import net.minecraft.block.AbstractFurnaceBlock;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.reimaden.unkindled.Unkindled;
 
 public class FurnaceUtil {
     public static boolean canBeLit(BlockState state) {
-        return state.isIn(Unkindled.NEEDS_IGNITING, s -> s.contains(AbstractFurnaceBlock.LIT) && !state.get(AbstractFurnaceBlock.LIT));
+        return state.is(Unkindled.NEEDS_IGNITING, s -> s.hasProperty(AbstractFurnaceBlock.LIT) && !state.getValue(AbstractFurnaceBlock.LIT));
     }
 }

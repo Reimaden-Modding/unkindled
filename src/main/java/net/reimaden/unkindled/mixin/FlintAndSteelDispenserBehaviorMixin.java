@@ -1,13 +1,14 @@
 package net.reimaden.unkindled.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.reimaden.unkindled.util.FurnaceUtil;
 import net.reimaden.unkindled.util.Igniter;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,30 +16,23 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "net.minecraft.block.dispenser.DispenserBehavior$17")
-public abstract class FlintAndSteelDispenserBehaviorMixin {
-    @ModifyExpressionValue(
-            method = "dispenseSilently",
+@Mixin(targets = "net.minecraft.core.dispenser.DispenseItemBehavior$8")
+public abstract class FlintAndSteelDispenserBehaviorMixin extends OptionalDispenseItemBehavior {
+    @Inject(
+            method = "execute",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/CandleCakeBlock;canBeLit(Lnet/minecraft/block/BlockState;)Z"
+                    target = "Lnet/minecraft/core/dispenser/DispenseItemBehavior$8;isSuccess()Z"
             )
     )
-    private boolean unkindled$allowUsingOnFurnaces(boolean original, @Local BlockState state) {
-        return original || FurnaceUtil.canBeLit(state);
-    }
-
-    @Inject(
-            method = "dispenseSilently",
-            at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/world/event/GameEvent;BLOCK_CHANGE:Lnet/minecraft/registry/entry/RegistryEntry$Reference;"
-            )
-    )
-    private void unkindled$setIgnited(CallbackInfoReturnable<ItemStack> cir, @Local ServerWorld world, @Local BlockPos pos) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof AbstractFurnaceBlockEntity furnace) {
+    private void unkindled$useOnFurnaces(CallbackInfoReturnable<ItemStack> cir, @Local(ordinal = 0) BlockState state,
+                                         @Local(ordinal = 0) ServerLevel level, @Local(ordinal = 0) BlockPos pos) {
+        if (FurnaceUtil.canBeLit(state) && level.getBlockEntity(pos) instanceof AbstractFurnaceBlockEntity furnace) {
+            level.setBlockAndUpdate(pos, state.setValue(AbstractFurnaceBlock.LIT, true));
+            level.gameEvent(null, GameEvent.BLOCK_CHANGE, pos);
             ((Igniter) furnace).unkindled$setIgnited(true);
+
+            this.setSuccess(true);
         }
     }
 }
